@@ -1,5 +1,6 @@
 import pygame
 import sys
+import os
 import random
 import winsound
 from tkinter import Tk
@@ -10,6 +11,16 @@ A "pop cat" themed counter program.
 - Sean Xie (26/12/2020)
 
 """
+
+
+# When the exe is launched, data is unpacked under the location sys._MEIPASS. If needed, access this location for data.
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS  # May not exist
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
 
 # Window args
 ROOT = Tk()
@@ -26,19 +37,17 @@ pygame.font.init()
 # Image
 cat_dimensions = [win[0] // 3, win[1] // 2]
 
-# When the exe is launched, data is unpacked under the location sys._MEIPASS. Normally, a function should be used to handle
-# exceptions and offer more convenience, but only 4 calls are needed in this program.
-IM_1 = sys._MEIPASS + "/assets/popcat1.jpg"  # Set default image
-IM_2 = sys._MEIPASS + "/assets/popcat2.jpg"
-ICON = pygame.image.load(sys._MEIPASS + "/assets/popcat_icon.ico")
+IM_1 = resource_path("assets/popcat1.jpg")  # Set default image
+IM_2 = resource_path("assets/popcat2.jpg")
+ICON = pygame.image.load(resource_path("assets/popcat_icon.ico"))
 
 cat = pygame.image.load(IM_1)  # Load with default dimensions
 cat = pygame.transform.scale(cat, cat_dimensions)  # Scale cat image
 
 # GUI
 font_size = win[1] // 2
-font_name = "i like the default one but i dont know what its called. this should work."
-font = pygame.font.SysFont(font_name, font_size, bold=True, italic=True)
+font_name = resource_path("assets/FreeSansBold.ttf")
+font = pygame.font.Font(font_name, font_size)
 
 # pygame window
 MAIN_SURFACE = pygame.display.set_mode(win)
@@ -94,7 +103,8 @@ if __name__ == '__main__':
 
                 if event.key == pygame.K_SPACE:  # On space press, change bg col and image, play sound, and iterate counter
                     curr_img = IM_2
-                    winsound.PlaySound(sys._MEIPASS + "/assets/Pop-sound-effect.wav", winsound.SND_ASYNC)  # without SND_ASYNC, program is blocked
+                    winsound.PlaySound(resource_path("assets/Pop-sound-effect.wav"),
+                                       winsound.SND_ASYNC)  # without SND_ASYNC, program is blocked
                     curr_bg_col = [random.randint(0, 255) for _ in range(3)]
                     count += 1
 
@@ -103,15 +113,15 @@ if __name__ == '__main__':
                     curr_img = IM_1
 
         # Update sizes and images, render to window
-        font = pygame.font.SysFont(font_name, font_size, bold=True, italic=True)
+        font = pygame.font.Font(font_name, font_size)
         cat = pygame.image.load(curr_img)
         cat = pygame.transform.scale(cat, cat_dimensions)
 
         txt_surface = font.render(str(count), True, (255 - curr_bg_col[0], 255 - curr_bg_col[1], 255 - curr_bg_col[2]))
 
         MAIN_SURFACE.fill(curr_bg_col)
-        MAIN_SURFACE.blit(cat, (win[0] // 2 - cat_dimensions[0] // 2, win[1] // 2 - cat_dimensions[1] // 2))
-        MAIN_SURFACE.blit(txt_surface, (0, 0))
+        MAIN_SURFACE.blit(cat, (win[0] // 2 - cat_dimensions[0] // 2, win[1] // 2 - win[1] // 17))  # Very specific
+        MAIN_SURFACE.blit(txt_surface, (0, -font_size // 4))
 
         pygame.display.update()
         clock.tick(FPS_CAP)
